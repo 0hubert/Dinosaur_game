@@ -29,6 +29,44 @@ class Dinosaur:
         self.height = 60
         self.vel_y = 0
         self.jumping = False
+        self.animation_count = 0
+        self.leg_up = True
+    
+    def get_dinosaur_points(self):
+        # Base points for dinosaur body
+        body_points = [
+            (self.x + 10, self.y - 40),  # neck base
+            (self.x + 15, self.y - 55),  # neck
+            (self.x + 25, self.y - 60),  # head top
+            (self.x + 35, self.y - 55),  # snout
+            (self.x + 35, self.y - 50),  # mouth
+            (self.x + 25, self.y - 45),  # bottom of head
+            (self.x + 40, self.y - 30),  # back
+            (self.x + 40, self.y - 10),  # tail
+            (self.x + 10, self.y - 10),  # bottom
+        ]
+        
+        # Add legs based on animation state
+        if self.jumping:
+            # Tucked legs for jumping
+            legs = [
+                (self.x + 15, self.y - 5),  # back leg
+                (self.x + 30, self.y - 5),  # front leg
+            ]
+        else:
+            # Running animation
+            if self.leg_up:
+                legs = [
+                    (self.x + 15, self.y),      # back leg down
+                    (self.x + 30, self.y - 15), # front leg up
+                ]
+            else:
+                legs = [
+                    (self.x + 15, self.y - 15), # back leg up
+                    (self.x + 30, self.y),      # front leg down
+                ]
+        
+        return body_points + legs
     
     def jump(self):
         if not self.jumping:
@@ -45,9 +83,23 @@ class Dinosaur:
             self.y = GROUND_Y
             self.vel_y = 0
             self.jumping = False
+        
+        # Update running animation
+        if not self.jumping:
+            self.animation_count += 1
+            if self.animation_count >= 10:  # Change leg position every 10 frames
+                self.leg_up = not self.leg_up
+                self.animation_count = 0
     
     def draw(self, screen):
-        pygame.draw.rect(screen, BLACK, (self.x, self.y - self.height, self.width, self.height))
+        # Draw the dinosaur using polygon
+        points = self.get_dinosaur_points()
+        pygame.draw.polygon(screen, BLACK, points)
+        
+        # Draw eye
+        eye_x = self.x + 30
+        eye_y = self.y - 53
+        pygame.draw.circle(screen, WHITE, (eye_x, eye_y), 2)
     
     def get_rect(self):
         return pygame.Rect(self.x, self.y - self.height, self.width, self.height)

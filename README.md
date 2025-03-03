@@ -6,6 +6,7 @@ A Python implementation of the famous Chrome Dinosaur Game using Pygame.
 - Dinosaur character that can jump
 - Randomly generated obstacles (cacti)
 - Increasing difficulty over time
+- Saves highscore
 
 ## Setup Instructions
 1. Install Python 3.8 or higher
