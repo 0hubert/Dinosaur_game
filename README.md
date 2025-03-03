@@ -23,3 +23,5 @@ A Python implementation of the famous Chrome Dinosaur Game using Pygame.
 - SPACE or UP ARROW: Jump
 - P: Pause game
 - R: Restart game after game over
+
+I used the cactus from img.freepik.com and the dinosaur from pikpng.com.

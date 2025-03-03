@@ -15,6 +15,7 @@ FPS = 60
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (100, 100, 100)
+BACKGROUND_COLOR = (255, 189, 30)  # #FFBD1E in RGB
 
 # Game variables
 GRAVITY = 0.8
@@ -26,11 +27,21 @@ class Dinosaur:
         self.x = 50
         self.y = GROUND_Y
         self.width = 50
-        self.height = 60
+        self.height = 50  # Adjusted to match sprite size
         self.vel_y = 0
         self.jumping = False
         self.animation_count = 0
         self.leg_up = True
+        
+        # Load the dinosaur sprite
+        self.sprite = pygame.image.load("raptor.png").convert_alpha()
+        # Scale the sprite to desired size (50x50 pixels)
+        self.sprite = pygame.transform.scale(self.sprite, (50, 50))
+        
+        # Create running animation frames
+        self.sprite_run1 = self.sprite
+        self.sprite_run2 = pygame.transform.rotate(self.sprite, 5)  # Slightly rotated for animation
+        self.current_sprite = self.sprite_run1
     
     def get_dinosaur_points(self):
         # Base points for dinosaur body
@@ -87,22 +98,20 @@ class Dinosaur:
         # Update running animation
         if not self.jumping:
             self.animation_count += 1
-            if self.animation_count >= 10:  # Change leg position every 10 frames
+            if self.animation_count >= 10:
                 self.leg_up = not self.leg_up
+                self.current_sprite = self.sprite_run2 if self.leg_up else self.sprite_run1
                 self.animation_count = 0
     
     def draw(self, screen):
-        # Draw the dinosaur using polygon
-        points = self.get_dinosaur_points()
-        pygame.draw.polygon(screen, BLACK, points)
-        
-        # Draw eye
-        eye_x = self.x + 30
-        eye_y = self.y - 53
-        pygame.draw.circle(screen, WHITE, (eye_x, eye_y), 2)
+        # Draw the sprite at the correct position
+        # Adjust y position to account for sprite height
+        screen.blit(self.current_sprite, (self.x, self.y - self.height))
     
     def get_rect(self):
-        return pygame.Rect(self.x, self.y - self.height, self.width, self.height)
+        # Adjust collision rectangle to match sprite size
+        return pygame.Rect(self.x + 10, self.y - self.height + 10, 
+                         self.width - 20, self.height - 10)  # Smaller hitbox for better gameplay
 
 class Cactus:
     def __init__(self, x):
@@ -110,15 +119,27 @@ class Cactus:
         self.y = GROUND_Y
         self.width = 30
         self.height = random.randint(40, 70)
+        
+        # Load and scale the cactus sprite
+        self.sprite = pygame.image.load("cactus.jpg").convert_alpha()
+        # Scale image to match hitbox dimensions while maintaining aspect ratio
+        scale_factor = self.height / self.sprite.get_height()
+        new_width = int(self.sprite.get_width() * scale_factor)
+        self.sprite = pygame.transform.scale(self.sprite, (new_width, self.height))
+        # Update width to match scaled sprite
+        self.width = new_width
     
     def update(self, speed):
         self.x -= speed
     
     def draw(self, screen):
-        pygame.draw.rect(screen, BLACK, (self.x, self.y - self.height, self.width, self.height))
+        # Draw the sprite instead of rectangle
+        screen.blit(self.sprite, (self.x, self.y - self.height))
     
     def get_rect(self):
-        return pygame.Rect(self.x, self.y - self.height, self.width, self.height)
+        # Adjust collision box to be slightly smaller than the sprite for better gameplay
+        return pygame.Rect(self.x + 5, self.y - self.height + 5, 
+                         self.width - 10, self.height - 5)
 
 class Game:
     def __init__(self):
@@ -182,8 +203,8 @@ class Game:
                 self.game_speed += 0.5
     
     def draw(self):
-        # Clear screen
-        self.screen.fill(WHITE)
+        # Clear screen with new background color
+        self.screen.fill(BACKGROUND_COLOR)
         
         # Draw ground
         pygame.draw.line(self.screen, BLACK, (0, GROUND_Y), (SCREEN_WIDTH, GROUND_Y), 2)
